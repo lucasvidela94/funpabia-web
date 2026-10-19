@@ -17,3 +17,4 @@ backups/
 docs/private/
 docs/spec/*.pdf
 docs/refs/*.png
+*.zip
