@@ -25,6 +25,7 @@ function FollowUps() {
     <div>
       <PanelHeader
         title="Seguimientos"
+        help="seguimiento"
         description={
           done ? 'Los últimos registrados.' : 'Los vencidos y los de los próximos 30 días.'
         }

@@ -23,6 +23,7 @@ function Goals() {
     <div>
       <PanelHeader
         title="Metas"
+        help="registrar-donacion"
         description="Cada necesidad grande, con su avance público."
         actions={
           <Link

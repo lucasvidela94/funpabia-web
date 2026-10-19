@@ -44,6 +44,7 @@ function AnimalsPage() {
     <div>
       <PanelHeader
         title="Animales"
+        help="cargar-animal"
         description={`${animals.length} ${animals.length === 1 ? 'animal' : 'animales'}`}
       />
 

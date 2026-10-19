@@ -24,6 +24,7 @@ function Applications() {
     <div>
       <PanelHeader
         title="Solicitudes"
+        help="responder-solicitud"
         description={
           closed
             ? 'Entregadas, rechazadas y retiradas, las más recientes primero.'

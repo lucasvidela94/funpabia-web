@@ -67,6 +67,7 @@ function AgendaAdmin() {
     <div>
       <PanelHeader
         title="Agenda"
+        help="agenda"
         description="Castraciones, vacunaciones y jornadas que se ven en el sitio."
         actions={
           editing === null ? (

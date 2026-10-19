@@ -69,6 +69,7 @@ function Settings() {
     <form onSubmit={onSubmit} noValidate className="max-w-3xl">
       <PanelHeader
         title="Configuración"
+        help="configuracion"
         description="Lo que se muestra en el sitio. Los cambios se ven al instante."
       />
 

@@ -9,15 +9,24 @@ export const getDashboard = createServerFn({ method: 'GET' })
     const queries = await import('./lib/queries')
     const admin = isAdminRole(user.role)
 
-    const [byStatus, urgent, unpublished, pendingReports, newApplications, overdueFollowUps] =
-      await Promise.all([
-        queries.selectStatusCounts(),
-        queries.countUrgent(),
-        queries.countUnpublished(),
-        queries.countPendingReports(),
-        admin ? queries.countNewApplications() : null,
-        admin ? queries.countOverdueFollowUps() : null,
-      ])
+    const [
+      byStatus,
+      urgent,
+      unpublished,
+      pendingReports,
+      newApplications,
+      overdueFollowUps,
+      setup,
+    ] = await Promise.all([
+      queries.selectStatusCounts(),
+      queries.countUrgent(),
+      queries.countUnpublished(),
+      queries.countPendingReports(),
+      admin ? queries.countNewApplications() : null,
+      admin ? queries.countOverdueFollowUps() : null,
+      // The first steps are the committee's to take: money accounts, goals and people.
+      admin ? queries.selectSetup() : null,
+    ])
 
     return {
       byStatus,
@@ -26,5 +35,6 @@ export const getDashboard = createServerFn({ method: 'GET' })
       pendingReports,
       newApplications,
       overdueFollowUps,
+      setup,
     }
   })

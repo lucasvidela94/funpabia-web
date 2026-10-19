@@ -18,6 +18,7 @@ function LostAndFoundPanel() {
     <div>
       <PanelHeader
         title="Perdidos y encontrados"
+        help="perdidos"
         description={
           pending > 0
             ? `${pending} por revisar. Nada se ve en el sitio hasta que lo apruebes.`

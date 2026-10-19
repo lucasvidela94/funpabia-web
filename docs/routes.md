@@ -53,6 +53,7 @@ Header navigation: Adoptá, Cómo adoptar, Sé tránsito, Agenda, Quiénes somos
 | `/panel/animales/nuevo` | `_private/panel/animales/nuevo.tsx` | Quick intake from the phone | all | MVP |
 | `/panel/animales/$animalId` | `_private/panel/animales/$animalId.tsx` | Edit, photos, status history | all | MVP |
 | `/panel/agenda` | `_private/panel/agenda.tsx` | Agenda events | all | MVP |
+| `/panel/ayuda` | `_private/panel/ayuda.tsx` | How-to guides by task (`src/lib/help`), filtered by role; each screen links to its guide (`#slug`) | all | MVP |
 | `/panel/noticias` | `_private/panel/noticias/index.tsx` | News posts | all | MVP (simple) |
 | `/panel/solicitudes` | `_private/panel/_admin/solicitudes/index.tsx` | Requests: list on the phone, kanban on desktop. Search: `etapa`, `tipo` | admin | MVP |
 | `/panel/solicitudes/$applicationId` | `_private/panel/_admin/solicitudes/$applicationId.tsx` | One request, notes, WhatsApp button | admin | MVP |

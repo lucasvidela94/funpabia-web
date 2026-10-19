@@ -24,6 +24,7 @@ function NewRaffle() {
       </Link>
       <PanelHeader
         title="Nueva rifa"
+        help="rifa"
         description="Queda en borrador hasta que abras la venta. No se publica en el sitio."
       />
       <div className="mt-6">

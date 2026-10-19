@@ -96,6 +96,7 @@ function NewAnimal() {
     <form onSubmit={onSubmit} noValidate className="mx-auto max-w-2xl pb-28 md:pb-0">
       <PanelHeader
         title="Cargar un animal"
+        help="cargar-animal"
         description="Con esto alcanza para empezar. El resto se completa después."
       />
 

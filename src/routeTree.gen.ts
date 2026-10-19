@@ -25,6 +25,7 @@ import { Route as PublicQuienesSomosRouteImport } from './routes/_public/quienes
 import { Route as PrivatePanelIndexRouteImport } from './routes/_private/panel/index'
 import { Route as PrivatePanelAdminRouteImport } from './routes/_private/panel/_admin'
 import { Route as PrivatePanelAgendaRouteImport } from './routes/_private/panel/agenda'
+import { Route as PrivatePanelAyudaRouteImport } from './routes/_private/panel/ayuda'
 import { Route as PrivatePanelPerdidosRouteImport } from './routes/_private/panel/perdidos'
 import { Route as PublicAdoptaIndexRouteImport } from './routes/_public/adopta/index'
 import { Route as PublicAdoptaSlugRouteImport } from './routes/_public/adopta/$slug'
@@ -140,6 +141,11 @@ const PrivatePanelAdminRoute = PrivatePanelAdminRouteImport.update({
 const PrivatePanelAgendaRoute = PrivatePanelAgendaRouteImport.update({
   id: '/panel/agenda',
   path: '/panel/agenda',
+  getParentRoute: () => PrivateRoute,
+} as any)
+const PrivatePanelAyudaRoute = PrivatePanelAyudaRouteImport.update({
+  id: '/panel/ayuda',
+  path: '/panel/ayuda',
   getParentRoute: () => PrivateRoute,
 } as any)
 const PrivatePanelPerdidosRoute = PrivatePanelPerdidosRouteImport.update({
@@ -365,6 +371,7 @@ export interface FileRoutesByFullPath {
   '/quienes-somos': typeof PublicQuienesSomosRoute
   '/panel': typeof PrivatePanelAdminRouteWithChildren
   '/panel/agenda': typeof PrivatePanelAgendaRoute
+  '/panel/ayuda': typeof PrivatePanelAyudaRoute
   '/panel/perdidos': typeof PrivatePanelPerdidosRoute
   '/adopta/$slug': typeof PublicAdoptaSlugRoute
   '/adopta/solicitud': typeof PublicAdoptaSolicitudRoute
@@ -419,6 +426,7 @@ export interface FileRoutesByTo {
   '/quienes-somos': typeof PublicQuienesSomosRoute
   '/panel': typeof PrivatePanelIndexRoute
   '/panel/agenda': typeof PrivatePanelAgendaRoute
+  '/panel/ayuda': typeof PrivatePanelAyudaRoute
   '/panel/perdidos': typeof PrivatePanelPerdidosRoute
   '/adopta/$slug': typeof PublicAdoptaSlugRoute
   '/adopta/solicitud': typeof PublicAdoptaSolicitudRoute
@@ -475,6 +483,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_private/panel/_admin': typeof PrivatePanelAdminRouteWithChildren
   '/_private/panel/agenda': typeof PrivatePanelAgendaRoute
+  '/_private/panel/ayuda': typeof PrivatePanelAyudaRoute
   '/_private/panel/perdidos': typeof PrivatePanelPerdidosRoute
   '/_public/adopta/$slug': typeof PublicAdoptaSlugRoute
   '/_public/adopta/solicitud': typeof PublicAdoptaSolicitudRoute
@@ -531,6 +540,7 @@ export interface FileRouteTypes {
     | '/quienes-somos'
     | '/panel'
     | '/panel/agenda'
+    | '/panel/ayuda'
     | '/panel/perdidos'
     | '/adopta/$slug'
     | '/adopta/solicitud'
@@ -585,6 +595,7 @@ export interface FileRouteTypes {
     | '/quienes-somos'
     | '/panel'
     | '/panel/agenda'
+    | '/panel/ayuda'
     | '/panel/perdidos'
     | '/adopta/$slug'
     | '/adopta/solicitud'
@@ -640,6 +651,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_private/panel/_admin'
     | '/_private/panel/agenda'
+    | '/_private/panel/ayuda'
     | '/_private/panel/perdidos'
     | '/_public/adopta/$slug'
     | '/_public/adopta/solicitud'
@@ -805,6 +817,13 @@ declare module '@tanstack/react-router' {
       path: '/panel/agenda'
       fullPath: '/panel/agenda'
       preLoaderRoute: typeof PrivatePanelAgendaRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/panel/ayuda': {
+      id: '/_private/panel/ayuda'
+      path: '/panel/ayuda'
+      fullPath: '/panel/ayuda'
+      preLoaderRoute: typeof PrivatePanelAyudaRouteImport
       parentRoute: typeof PrivateRoute
     }
     '/_private/panel/perdidos': {
@@ -1121,6 +1140,7 @@ const PrivatePanelAdminRouteWithChildren =
 interface PrivateRouteChildren {
   PrivatePanelAdminRoute: typeof PrivatePanelAdminRouteWithChildren
   PrivatePanelAgendaRoute: typeof PrivatePanelAgendaRoute
+  PrivatePanelAyudaRoute: typeof PrivatePanelAyudaRoute
   PrivatePanelPerdidosRoute: typeof PrivatePanelPerdidosRoute
   PrivatePanelIndexRoute: typeof PrivatePanelIndexRoute
   PrivatePanelAnimalesAnimalIdRoute: typeof PrivatePanelAnimalesAnimalIdRoute
@@ -1132,6 +1152,7 @@ interface PrivateRouteChildren {
 const PrivateRouteChildren: PrivateRouteChildren = {
   PrivatePanelAdminRoute: PrivatePanelAdminRouteWithChildren,
   PrivatePanelAgendaRoute: PrivatePanelAgendaRoute,
+  PrivatePanelAyudaRoute: PrivatePanelAyudaRoute,
   PrivatePanelPerdidosRoute: PrivatePanelPerdidosRoute,
   PrivatePanelIndexRoute: PrivatePanelIndexRoute,
   PrivatePanelAnimalesAnimalIdRoute: PrivatePanelAnimalesAnimalIdRoute,

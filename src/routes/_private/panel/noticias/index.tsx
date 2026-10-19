@@ -66,6 +66,7 @@ function NewsAdmin() {
     <div>
       <PanelHeader
         title="Noticias"
+        help="noticia"
         description="Novedades, campañas y comunicados que se ven en el sitio."
         actions={
           editing === null ? (

@@ -39,6 +39,7 @@ function Users() {
     <div className="max-w-3xl">
       <PanelHeader
         title="Usuarios"
+        help="sumar-persona"
         description="Quién entra al panel. La editora no ve datos de adoptantes ni de dinero."
         actions={
           adding ? null : (

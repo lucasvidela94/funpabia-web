@@ -18,7 +18,11 @@ function NewGoal() {
         <ArrowLeft className="size-4" aria-hidden="true" />
         Metas
       </Link>
-      <PanelHeader title="Nueva meta" description="Se publica en Doná apenas la guardás." />
+      <PanelHeader
+        title="Nueva meta"
+        description="Se publica en Doná apenas la guardás."
+        help="crear-meta"
+      />
       <div className="mt-6">
         <GoalForm
           initial={EMPTY_GOAL}

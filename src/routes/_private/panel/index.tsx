@@ -1,5 +1,6 @@
 import { Link, createFileRoute, type LinkProps } from '@tanstack/react-router'
 import { AlertTriangle, CalendarClock, EyeOff, Inbox, Search, type LucideIcon } from 'lucide-react'
+import { SetupChecklist } from '@/components/panel/setup-checklist'
 import { StatusBadge } from '@/components/panel/status-badge'
 import type { AnimalStatus } from '@/lib/catalog'
 import { getDashboard } from '@/lib/dashboard'
@@ -29,6 +30,8 @@ function DashboardPage() {
         </h1>
         <p className="mt-1 text-ink-2">Esto es lo que necesita atención hoy.</p>
       </header>
+
+      {data.setup ? <SetupChecklist setup={data.setup} /> : null}
 
       <section aria-labelledby="atencion">
         <h2 id="atencion" className="sr-only">

@@ -24,6 +24,7 @@ function Raffles() {
     <div>
       <PanelHeader
         title="Rifas"
+        help="rifa"
         description="El cuaderno de cada rifa: quién tiene cada número y cuánto se cobró."
         actions={
           <Link
