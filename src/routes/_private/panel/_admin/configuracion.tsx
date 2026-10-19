@@ -146,10 +146,11 @@ function Settings() {
         <p className="mt-1 text-sm text-ink-2">
           Se muestra en Contacto y en el pie de todas las páginas.
         </p>
+        {/* Fields side by side share the same kind of one-line hint, so their inputs line up. */}
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <TextField
             label="Teléfono"
-            hint="Para llamadas. Si atienden por WhatsApp, cargá también el campo de abajo."
+            hint="Para llamadas."
             type="tel"
             inputMode="tel"
             value={contact.phone}
@@ -158,18 +159,12 @@ function Settings() {
           />
           <TextField
             label="WhatsApp"
+            hint="Si atienden por WhatsApp."
             type="tel"
             inputMode="tel"
             value={contact.whatsapp}
             onChange={(event) => setContact({ ...contact, whatsapp: event.target.value })}
             error={errors.get('contact.whatsapp')}
-          />
-          <TextField
-            label="Email"
-            type="email"
-            value={contact.email}
-            onChange={(event) => setContact({ ...contact, email: event.target.value })}
-            error={errors.get('contact.email')}
           />
           <TextField
             label="Instagram"
@@ -186,6 +181,14 @@ function Settings() {
             onChange={(event) => setContact({ ...contact, facebook: event.target.value })}
             error={errors.get('contact.facebook')}
             autoCapitalize="none"
+          />
+          <TextField
+            label="Email"
+            hint="Para consultas por escrito."
+            type="email"
+            value={contact.email}
+            onChange={(event) => setContact({ ...contact, email: event.target.value })}
+            error={errors.get('contact.email')}
           />
         </div>
       </section>
