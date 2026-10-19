@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "funpabia",
+  "compatibility_date": "2026-10-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/server.ts",
+  "observability": { "enabled": true },
+  // Nightly, 03:00 in Argentina: deletes photos nothing points at (src/lib/photo-cleanup).
+  "triggers": { "crons": ["0 6 * * *"] },
+  "vars": {
+    "BETTER_AUTH_URL": "https://funpabia.lucasan-videla.workers.dev",
+    "PUBLIC_SITE_URL": "https://funpabia.lucasan-videla.workers.dev",
+    // Cloudflare Web Analytics token (dashboard > Web Analytics > the site's snippet). Empty means
+    // no analytics script and no CSP entry for it. The token is public by design.
+    "ANALYTICS_TOKEN": "",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "funpabia",
+      "database_id": "eb9de3b6-dc9c-46c9-8d13-3fdb2a5862d6",
+    },
+  ],
+  "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "funpabia" }],
+}

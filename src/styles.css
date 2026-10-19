@@ -1,0 +1,76 @@
+@import '@fontsource-variable/fraunces';
+@import '@fontsource-variable/figtree';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './styles/tokens.css';
+
+/* The site has no dark mode (design-system.md, section 8). Guard: shadcn components added later
+   arrive with `dark:` classes; tied to a `.dark` class nobody sets, they never apply. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  /* Keeps native controls (selects, checkboxes, scrollbars) light under a dark OS setting. */
+  :root {
+    color-scheme: light;
+  }
+
+  /* Tailwind v4 borders default to currentColor; the design system wants the decorative line. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+
+  body {
+    @apply bg-background font-sans leading-[1.55] text-foreground antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading font-extrabold leading-[1.15] tracking-[-0.035em];
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Blocks with a teal-900 background need a ring that contrasts with it. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-yellow-400);
+  }
+
+  /* The home's one orchestrated moment: the rosette swings into place like a hung medal. */
+  .rosette {
+    transform-origin: 50% 0;
+    animation: rosette-hang 1.1s cubic-bezier(0.3, 1.45, 0.6, 1) both;
+  }
+
+  @keyframes rosette-hang {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) rotate(-8deg);
+    }
+
+    40% {
+      opacity: 1;
+    }
+
+    to {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

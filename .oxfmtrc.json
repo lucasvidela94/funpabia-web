@@ -1,0 +1,13 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "ignorePatterns": [
+    ".agents/**",
+    ".claude/**",
+    "docs/**",
+    "src/routeTree.gen.ts",
+    "worker-configuration.d.ts",
+    "tools/oxlint/anti-slop/**",
+    "pnpm-lock.yaml"
+  ]
+}

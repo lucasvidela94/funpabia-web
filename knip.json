@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/router.tsx",
+    "src/start.ts",
+    "src/routes/**/*.tsx",
+    "src/routes/**/*.ts",
+    "tools/**/*.ts"
+  ],
+  "project": ["src/**/*", "tools/**/*"],
+  "ignoreDependencies": ["cloudflare"],
+  "rules": {
+    "files": "warn"
+  }
+}
