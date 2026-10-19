@@ -9,6 +9,7 @@ import { pageMeta } from '@/lib/seo'
 
 const DEVELOPER = {
   github: 'lucasvidela94',
+  repo: 'funpabia-web',
   email: 'lucasan.videla@gmail.com',
 }
 
@@ -90,7 +91,21 @@ function Questions() {
               >
                 {DEVELOPER.email}
               </a>
-              . El código está en un repositorio privado.
+              .
+            </p>
+          </Question>
+          <Question title="¿Puedo ver el código?">
+            <p>
+              Sí, es abierto:{' '}
+              <a
+                href={`https://github.com/${DEVELOPER.github}/${DEVELOPER.repo}`}
+                rel="noopener"
+                className="font-semibold text-primary underline underline-offset-4"
+              >
+                github.com/{DEVELOPER.github}/{DEVELOPER.repo}
+              </a>
+              . Ahí está todo lo que hace funcionar el sitio y el panel. Los datos de las personas
+              no: viven en la base de datos, nunca en el código.
             </p>
           </Question>
           <Question title="¿Con qué tecnología está hecho?">
