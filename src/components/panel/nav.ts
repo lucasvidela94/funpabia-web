@@ -22,13 +22,17 @@ import {
 
 type PanelNavItem = { label: string; to: LinkProps['to']; icon: LucideIcon; admin: boolean }
 
-type PanelNavGroup = { label: string | null; items: PanelNavItem[] }
+// `collapsible` groups start closed unless the current page is in them: they hold what is opened
+// now and then, so the daily items fit without scrolling.
+type PanelNavGroup = { label: string | null; collapsible?: boolean; items: PanelNavItem[] }
 
 const PANEL_NAV: PanelNavGroup[] = [
-  { label: null, items: [{ label: 'Tablero', to: '/panel', icon: LayoutDashboard, admin: false }] },
   {
-    label: 'Animales',
-    items: [{ label: 'Animales', to: '/panel/animales', icon: PawPrint, admin: false }],
+    label: null,
+    items: [
+      { label: 'Tablero', to: '/panel', icon: LayoutDashboard, admin: false },
+      { label: 'Animales', to: '/panel/animales', icon: PawPrint, admin: false },
+    ],
   },
   {
     label: 'Adopciones',
@@ -56,6 +60,7 @@ const PANEL_NAV: PanelNavGroup[] = [
   },
   {
     label: 'Administración',
+    collapsible: true,
     items: [
       { label: 'Usuarios', to: '/panel/usuarios', icon: UserCog, admin: true },
       { label: 'API', to: '/panel/api', icon: KeyRound, admin: true },

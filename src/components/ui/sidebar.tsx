@@ -225,7 +225,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="sidebar-group"
       data-sidebar="group"
-      className={cn('relative flex w-full min-w-0 flex-col px-3 py-1.5', className)}
+      className={cn('relative flex w-full min-w-0 flex-col px-3 py-1', className)}
       {...props}
     />
   )
@@ -237,7 +237,7 @@ function SidebarGroupLabel({ className, ...props }: React.ComponentProps<'h2'>) 
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        'flex h-8 shrink-0 items-center px-3 text-sm font-semibold text-sidebar-foreground/75',
+        'flex h-8 shrink-0 items-center px-3 text-sm font-semibold text-sidebar-foreground/75 md:h-7',
         className,
       )}
       {...props}
@@ -282,7 +282,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-active={isActive}
       className={cn(
-        'flex h-11 w-full items-center gap-3 overflow-hidden rounded-md px-3 text-left text-[0.9375rem] font-semibold transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[status=active]:bg-sidebar-primary data-[status=active]:text-sidebar-primary-foreground [&>span:last-child]:truncate [&>svg]:size-5 [&>svg]:shrink-0',
+        'flex h-11 w-full items-center gap-3 overflow-hidden rounded-md px-3 md:h-9 text-left text-[0.9375rem] font-semibold transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[status=active]:bg-sidebar-primary data-[status=active]:text-sidebar-primary-foreground [&>span:last-child]:truncate [&>svg]:size-5 [&>svg]:shrink-0',
         className,
       )}
       {...props}
