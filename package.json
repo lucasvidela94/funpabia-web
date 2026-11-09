@@ -20,6 +20,7 @@
     "knip": "knip",
     "format": "oxfmt",
     "check": "pnpm typecheck && pnpm lint",
+    "test": "vitest run",
     "prepare": "husky"
   },
   "dependencies": {
@@ -64,6 +65,7 @@
     "oxlint": "1.88.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",
+    "vitest": "^5.1.0",
     "wrangler": "^4.151.1"
   },
   "lint-staged": {

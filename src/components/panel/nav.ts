@@ -16,22 +16,35 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react'
+import { can, type Action } from '@/lib/auth/lib/permissions'
+import { isAdminRole } from '@/lib/auth/session'
 
-// The panel menu (docs/routes.md, "Sidebar"). `admin` items are the routes under the _admin
-// layout; the sidebar hides them from editors so the menu and the guard never disagree.
+// The panel menu (docs/routes.md, "Sidebar"). `action` items follow the permission table; `admin`
+// items are the routes under the _admin layout, so the menu and the guards never disagree.
 
-type PanelNavItem = { label: string; to: LinkProps['to']; icon: LucideIcon; admin: boolean }
+type PanelNavItem = {
+  label: string
+  to: LinkProps['to']
+  icon: LucideIcon
+  action?: Action
+  admin?: boolean
+}
 
-// `collapsible` groups start closed unless the current page is in them: they hold what is opened
-// now and then, so the daily items fit without scrolling.
-type PanelNavGroup = { label: string | null; collapsible?: boolean; items: PanelNavItem[] }
+// `collapsible` groups open where `defaultOpen` says; the current page also opens its group. The
+// rest of the panel fits without scrolling either way.
+type PanelNavGroup = {
+  label: string | null
+  collapsible?: boolean
+  defaultOpen?: boolean
+  items: PanelNavItem[]
+}
 
 const PANEL_NAV: PanelNavGroup[] = [
   {
     label: null,
     items: [
-      { label: 'Tablero', to: '/panel', icon: LayoutDashboard, admin: false },
-      { label: 'Animales', to: '/panel/animales', icon: PawPrint, admin: false },
+      { label: 'Tablero', to: '/panel', icon: LayoutDashboard, action: 'dashboard:read' },
+      { label: 'Animales', to: '/panel/animales', icon: PawPrint, action: 'animal:read' },
     ],
   },
   {
@@ -53,25 +66,33 @@ const PANEL_NAV: PanelNavGroup[] = [
   {
     label: 'Contenido',
     items: [
-      { label: 'Agenda', to: '/panel/agenda', icon: CalendarDays, admin: false },
-      { label: 'Noticias', to: '/panel/noticias', icon: Newspaper, admin: false },
-      { label: 'Perdidos', to: '/panel/perdidos', icon: Search, admin: false },
+      { label: 'Agenda', to: '/panel/agenda', icon: CalendarDays, action: 'agenda:read' },
+      { label: 'Noticias', to: '/panel/noticias', icon: Newspaper, action: 'news:read' },
+      { label: 'Perdidos', to: '/panel/perdidos', icon: Search, action: 'lost-found:moderate' },
     ],
   },
   {
     label: 'Administración',
     collapsible: true,
+    defaultOpen: true,
     items: [
-      { label: 'Usuarios', to: '/panel/usuarios', icon: UserCog, admin: true },
-      { label: 'API', to: '/panel/api', icon: KeyRound, admin: true },
-      { label: 'Configuración', to: '/panel/configuracion', icon: Settings, admin: true },
+      { label: 'Usuarios', to: '/panel/usuarios', icon: UserCog, action: 'users:manage' },
+      { label: 'API', to: '/panel/api', icon: KeyRound, action: 'api:manage' },
+      {
+        label: 'Configuración',
+        to: '/panel/configuracion',
+        icon: Settings,
+        action: 'settings:manage',
+      },
     ],
   },
 ]
 
-export function navForRole(isAdmin: boolean): PanelNavGroup[] {
+export function navForRole(role: string): PanelNavGroup[] {
   return PANEL_NAV.flatMap((group) => {
-    const items = group.items.filter((item) => isAdmin || !item.admin)
+    const items = group.items.filter((item) =>
+      item.action ? can(role, item.action) : !item.admin || isAdminRole(role),
+    )
 
     return items.length > 0 ? [{ ...group, items }] : []
   })

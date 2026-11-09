@@ -6,7 +6,7 @@ import { ChoiceField, TextField } from '@/components/shared/form-fields'
 import { PanelHeader } from '@/components/panel/panel-page'
 import { useAction } from '@/components/panel/use-action'
 import { Button } from '@/components/ui/button'
-import { roleLabel } from '@/lib/auth/session'
+import { canAssignRole, canManageUser, roleLabel } from '@/lib/auth/session'
 import { formatAge } from '@/lib/format'
 import {
   ASSIGNABLE_ROLES,
@@ -27,12 +27,13 @@ export const Route = createFileRoute('/_private/panel/_admin/usuarios')({
 const ROLE_LABEL: Record<(typeof ASSIGNABLE_ROLES)[number], string> = {
   admin: 'Comisión: todo el panel',
   editor: 'Editora: animales, noticias y agenda',
+  veterinarian: 'Veterinaria: animales en lectura y agenda',
+  municipality: 'Municipio: solo agenda',
 }
-
-const ROLE_OPTIONS = ASSIGNABLE_ROLES.map((value) => ({ value, label: ROLE_LABEL[value] }))
 
 function Users() {
   const { users, me } = Route.useLoaderData()
+  const { user: current } = Route.useRouteContext()
   const [adding, setAdding] = useState(false)
 
   return (
@@ -51,12 +52,12 @@ function Users() {
         }
       />
 
-      {adding ? <NewUser onDone={() => setAdding(false)} /> : null}
+      {adding ? <NewUser actorRole={current.role} onDone={() => setAdding(false)} /> : null}
 
       <ul className="mt-6 divide-y overflow-hidden rounded-lg border bg-card">
         {users.map((user) => (
           <li key={user.id}>
-            <UserRow user={user} isMe={user.id === me} />
+            <UserRow user={user} isMe={user.id === me} actorRole={current.role} />
           </li>
         ))}
       </ul>
@@ -64,9 +65,10 @@ function Users() {
   )
 }
 
-function UserRow({ user, isMe }: { user: PanelUser; isMe: boolean }) {
+function UserRow({ user, isMe, actorRole }: { user: PanelUser; isMe: boolean; actorRole: string }) {
   const action = useAction()
-  const editable = !isMe && user.role !== 'superadmin'
+  const editable = !isMe && canManageUser(actorRole, user.role)
+  const roleOptions = ASSIGNABLE_ROLES.filter((role) => canAssignRole(actorRole, role))
 
   return (
     <div className="flex flex-wrap items-center gap-3 px-4 py-4">
@@ -86,23 +88,7 @@ function UserRow({ user, isMe }: { user: PanelUser; isMe: boolean }) {
       </div>
       {editable ? (
         <div className="flex flex-wrap gap-2">
-          {user.active ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="h-11 px-3"
-              disabled={action.pending}
-              onClick={() =>
-                action.run(() =>
-                  setUserRole({
-                    data: { id: user.id, role: user.role === 'admin' ? 'editor' : 'admin' },
-                  }),
-                )
-              }
-            >
-              {user.role === 'admin' ? 'Pasar a editora' : 'Pasar a comisión'}
-            </Button>
-          ) : null}
+          {user.active ? <RolePicker user={user} options={roleOptions} /> : null}
           {user.active ? (
             <ConfirmButton
               variant="outline"
@@ -140,10 +126,80 @@ function UserRow({ user, isMe }: { user: PanelUser; isMe: boolean }) {
   )
 }
 
+// An explicit role, never a toggle: a veterinarian or a municipality account must not land in
+// Comisión by accident.
+function RolePicker({
+  user,
+  options,
+}: {
+  user: PanelUser
+  options: readonly (typeof ASSIGNABLE_ROLES)[number][]
+}) {
+  const action = useAction()
+
+  const [value, setValue] = useState<(typeof ASSIGNABLE_ROLES)[number]>(
+    ASSIGNABLE_ROLES.find((role) => role === user.role) ?? ASSIGNABLE_ROLES[0],
+  )
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <label htmlFor={`rol-${user.id}`} className="sr-only">
+        Rol de {user.name}
+      </label>
+      <select
+        id={`rol-${user.id}`}
+        value={value}
+        disabled={action.pending}
+        onChange={(event) => {
+          const next = ASSIGNABLE_ROLES.find((role) => role === event.target.value)
+
+          if (next) {
+            setValue(next)
+          }
+        }}
+        className="h-11 rounded-md border border-input bg-card px-3 font-semibold"
+      >
+        {options.map((role) => (
+          <option key={role} value={role}>
+            {ROLE_LABEL[role]}
+          </option>
+        ))}
+      </select>
+      <Button
+        type="button"
+        variant="outline"
+        className="h-11 px-3"
+        disabled={action.pending || value === user.role}
+        onClick={() => void action.run(() => setUserRole({ data: { id: user.id, role: value } }))}
+      >
+        Guardar rol
+      </Button>
+      {action.error ? (
+        <p className="w-full text-sm font-semibold text-lost">{action.error}</p>
+      ) : null}
+    </div>
+  )
+}
+
 // The new person types their own password here, in front of whoever adds them: it is never
 // passed along by message.
-function NewUser({ onDone }: { onDone: () => void }) {
-  const [values, setValues] = useState({ name: '', email: '', role: 'editor', password: '' })
+function NewUser({ actorRole, onDone }: { actorRole: string; onDone: () => void }) {
+  const roleOptions = ASSIGNABLE_ROLES.filter((role) => canAssignRole(actorRole, role)).map(
+    (value) => ({ value, label: ROLE_LABEL[value] }),
+  )
+
+  const [values, setValues] = useState<{
+    name: string
+    email: string
+    role: string
+    password: string
+  }>({
+    name: '',
+    email: '',
+    role: roleOptions[0]?.value ?? 'editor',
+    password: '',
+  })
+
   const [errors, setErrors] = useState<Map<string, string>>(new Map())
   const save = useAction()
 
@@ -204,7 +260,7 @@ function NewUser({ onDone }: { onDone: () => void }) {
       <ChoiceField
         legend="Rol"
         name="role"
-        options={ROLE_OPTIONS}
+        options={roleOptions}
         value={values.role}
         onChange={(role) => setValues({ ...values, role })}
         error={errors.get('role')}

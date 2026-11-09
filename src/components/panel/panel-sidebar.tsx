@@ -29,11 +29,11 @@ type Group = ReturnType<typeof navForRole>[number]
 
 export function PanelSidebar({
   user,
-  isAdmin,
+  role,
   onSignOut,
 }: {
   user: { name: string; role: string }
-  isAdmin: boolean
+  role: string
   onSignOut: () => void
 }) {
   const { isMobile, setOpenMobile } = useSidebar()
@@ -51,7 +51,7 @@ export function PanelSidebar({
       {/* A thin scrollbar in the sidebar's own colors, for short screens. */}
       <SidebarContent className="[scrollbar-color:var(--color-teal-600)_transparent] [scrollbar-width:thin]">
         <nav aria-label="Panel">
-          {navForRole(isAdmin).map((group) =>
+          {navForRole(role).map((group) =>
             group.collapsible ? (
               <CollapsibleGroup key={group.label} group={group} onNavigate={closeOnMobile} />
             ) : (
@@ -88,11 +88,11 @@ function NavItems({ group, onNavigate }: { group: Group; onNavigate: () => void 
   )
 }
 
-// Closed by default; always open while the current page is one of its items.
+// Open where the group asks; always open while the current page is one of its items.
 function CollapsibleGroup({ group, onNavigate }: { group: Group; onNavigate: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const containsCurrent = group.items.some((item) => item.to && pathname.startsWith(item.to))
-  const [opened, setOpened] = useState(false)
+  const [opened, setOpened] = useState(group.defaultOpen ?? false)
   const open = containsCurrent || opened
 
   return (

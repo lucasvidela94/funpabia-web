@@ -1,6 +1,17 @@
 import { createMiddleware, createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
+import { can, type Action } from './lib/permissions'
 import { ROLES, type Role } from './lib/roles'
+
+export {
+  ASSIGNABLE_ROLES,
+  TOKEN_ROLES,
+  can,
+  canAssignRole,
+  canManageUser,
+  mayHoldToken,
+  type Action,
+} from './lib/permissions'
 
 // The session of the current request, or null. Discarded (soft-deleted) users never count as signed in.
 export const getSession = createServerFn({ method: 'GET' }).handler(async () => {
@@ -50,6 +61,16 @@ export async function requireUser(access: 'any' | 'admin' = 'any') {
   return session.user
 }
 
+export async function requireAction(action: Action) {
+  const session = await getSession()
+
+  if (!session || !can(session.user.role, action)) {
+    throw new Error('Forbidden')
+  }
+
+  return session.user
+}
+
 // The same checks as middleware, for panel server functions. Middleware runs before the function's
 // own validator, so a caller without access gets Forbidden and never learns the input schema.
 // The user lands in `context.user`.
@@ -60,3 +81,9 @@ export const userMiddleware = createMiddleware({ type: 'function' }).server(asyn
 export const adminMiddleware = createMiddleware({ type: 'function' }).server(async ({ next }) =>
   next({ context: { user: await requireUser('admin') } }),
 )
+
+export function actionMiddleware(action: Action) {
+  return createMiddleware({ type: 'function' }).server(async ({ next }) =>
+    next({ context: { user: await requireAction(action) } }),
+  )
+}

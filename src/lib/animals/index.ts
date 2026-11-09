@@ -1,6 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { userMiddleware } from '@/lib/auth/session'
+import { actionMiddleware } from '@/lib/auth/session'
 import { guarded } from '@/lib/guarded'
 import { AnimalError } from './lib/errors'
 import {
@@ -25,7 +25,7 @@ export type AnimalDetail = Awaited<ReturnType<typeof getAnimalDetail>>
 export type AnimalListItem = Awaited<ReturnType<typeof listAnimals>>[number]
 
 export const listAnimals = createServerFn({ method: 'GET' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:read')])
   .validator(animalListSearchSchema)
   .handler(async ({ data }) => {
     const { selectAnimals } = await import('./lib/queries')
@@ -34,7 +34,7 @@ export const listAnimals = createServerFn({ method: 'GET' })
   })
 
 export const getAnimalDetail = createServerFn({ method: 'GET' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:read')])
   .validator(idInputSchema)
   .handler(async ({ data }) => {
     const { selectAnimalDetail } = await import('./lib/detail')
@@ -48,7 +48,7 @@ export const getAnimalDetail = createServerFn({ method: 'GET' })
   })
 
 export const createAnimal = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:create')])
   .validator(intakeSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () => {
@@ -59,7 +59,7 @@ export const createAnimal = createServerFn({ method: 'POST' })
   )
 
 export const updateAnimal = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:update')])
   .validator(animalDetailsSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -68,7 +68,7 @@ export const updateAnimal = createServerFn({ method: 'POST' })
   )
 
 export const setAnimalStatus = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:update')])
   .validator(statusChangeSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -77,7 +77,7 @@ export const setAnimalStatus = createServerFn({ method: 'POST' })
   )
 
 export const setAnimalFlags = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:update')])
   .validator(flagsSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -86,7 +86,7 @@ export const setAnimalFlags = createServerFn({ method: 'POST' })
   )
 
 export const archiveAnimal = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:archive')])
   .validator(idInputSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -95,7 +95,7 @@ export const archiveAnimal = createServerFn({ method: 'POST' })
   )
 
 export const unarchiveAnimal = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:archive')])
   .validator(idInputSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -104,7 +104,7 @@ export const unarchiveAnimal = createServerFn({ method: 'POST' })
   )
 
 export const deleteAnimal = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:delete')])
   .validator(idInputSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -113,7 +113,7 @@ export const deleteAnimal = createServerFn({ method: 'POST' })
   )
 
 export const addAnimalPhotos = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:update')])
   .validator(addPhotosSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -122,7 +122,7 @@ export const addAnimalPhotos = createServerFn({ method: 'POST' })
   )
 
 export const editAnimalPhoto = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:update')])
   .validator(photoEditSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>
@@ -131,7 +131,7 @@ export const editAnimalPhoto = createServerFn({ method: 'POST' })
   )
 
 export const deleteAnimalPhoto = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('animal:update')])
   .validator(photoIdInputSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AnimalError, event: 'animal.write_failed' }, async () =>

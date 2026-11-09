@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { adminMiddleware } from '@/lib/auth/session'
+import { actionMiddleware } from '@/lib/auth/session'
 import { guarded } from '@/lib/guarded'
 import { logger } from '@/lib/logger'
 import { TokenError } from './lib/errors'
@@ -21,7 +21,7 @@ export const newTokenSchema = z.object({
 const idSchema = z.object({ id: z.string().min(1).max(64) })
 
 export const listApiTokens = createServerFn({ method: 'GET' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('api:manage')])
   .handler(async () => {
     const { selectTokens } = await import('./lib/tokens')
 
@@ -29,7 +29,7 @@ export const listApiTokens = createServerFn({ method: 'GET' })
   })
 
 export const createApiToken = createServerFn({ method: 'POST' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('api:manage')])
   .validator(newTokenSchema)
   .handler(async ({ data }) => {
     const created = await guarded({ error: TokenError, event: 'api.token_failed' }, async () =>
@@ -42,7 +42,7 @@ export const createApiToken = createServerFn({ method: 'POST' })
   })
 
 export const revokeApiToken = createServerFn({ method: 'POST' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('api:manage')])
   .validator(idSchema)
   .handler(async ({ data }) => {
     await guarded({ error: TokenError, event: 'api.token_failed' }, async () =>

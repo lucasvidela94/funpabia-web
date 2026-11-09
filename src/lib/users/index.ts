@@ -1,14 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { adminMiddleware } from '@/lib/auth/session'
+import { ASSIGNABLE_ROLES, actionMiddleware, canAssignRole } from '@/lib/auth/session'
 import { guarded } from '@/lib/guarded'
 import { logger } from '@/lib/logger'
 import { UserError } from './lib/errors'
 
-// Panel users and their roles (spec 4). Committee only. The MVP has two roles to hand out:
-// admin ("Comisión") and editor; the rest of the spec's roles come in later phases.
+// Panel users and their roles (spec 4). Committee only. An admin hands out editor, veterinarian
+// and municipality; only the technical superadmin names another admin.
 
-export const ASSIGNABLE_ROLES = ['admin', 'editor'] as const
+export { ASSIGNABLE_ROLES }
 
 // Better Auth's own minimum (src/lib/auth/server.ts).
 export const MIN_PASSWORD_LENGTH = 12
@@ -29,7 +29,7 @@ export type PanelUser = Awaited<ReturnType<typeof listUsers>>['users'][number]
 const idSchema = z.string().min(1).max(64)
 
 export const listUsers = createServerFn({ method: 'GET' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('users:manage')])
   .handler(async ({ context: { user: me } }) => {
     const { selectUsers } = await import('./lib/queries')
 
@@ -37,9 +37,13 @@ export const listUsers = createServerFn({ method: 'GET' })
   })
 
 export const createUser = createServerFn({ method: 'POST' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('users:manage')])
   .validator(newUserSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context: { user: me } }) => {
+    if (!canAssignRole(me.role, data.role)) {
+      throw new UserError('No podés asignar ese rol.')
+    }
+
     await guarded({ error: UserError, event: 'user.write_failed' }, async () =>
       (await import('./lib/queries')).insertUser(data),
     )
@@ -47,7 +51,7 @@ export const createUser = createServerFn({ method: 'POST' })
   })
 
 export const setUserRole = createServerFn({ method: 'POST' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('users:manage')])
   .validator(z.object({ id: idSchema, role: z.enum(ASSIGNABLE_ROLES) }))
   .handler(async ({ data, context: { user: me } }) =>
     guarded({ error: UserError, event: 'user.write_failed' }, async () =>
@@ -56,7 +60,7 @@ export const setUserRole = createServerFn({ method: 'POST' })
   )
 
 export const setUserActive = createServerFn({ method: 'POST' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('users:manage')])
   .validator(z.object({ id: idSchema, active: z.boolean() }))
   .handler(async ({ data, context: { user: me } }) =>
     guarded({ error: UserError, event: 'user.write_failed' }, async () =>

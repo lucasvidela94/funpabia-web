@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers'
 import { hashPassword } from 'better-auth/crypto'
 import { z } from 'zod'
+import { canAssignRole, canManageUser } from '@/lib/auth/lib/permissions'
 import { UserError } from './errors'
 
 // Panel users (spec 4). The same rows Better Auth reads to sign in: `app_user` plus a `credential`
@@ -52,13 +53,21 @@ async function target(id: string) {
   return targetSchema.parse(row)
 }
 
-// The technical superadmin (spec 4) can only be changed by another superadmin.
-function guardSuperadmin(targetRole: string, actorRole: string) {
-  if (targetRole === 'superadmin' && actorRole !== 'superadmin') {
-    throw new UserError(
-      'La cuenta de soporte técnico solo la puede cambiar otra cuenta de soporte.',
-    )
+// The panel never changes the technical superadmin (spec 4): that account is maintained outside.
+function assertCanManage(targetRole: string, actorRole: string) {
+  if (canManageUser(actorRole, targetRole)) {
+    return
   }
+
+  if (targetRole === 'superadmin') {
+    throw new UserError('La cuenta de soporte técnico no se cambia desde el panel.')
+  }
+
+  if (targetRole === 'admin') {
+    throw new UserError('Solo una cuenta de soporte puede cambiar a la comisión.')
+  }
+
+  throw new UserError('No podés cambiar esa cuenta.')
 }
 
 export async function insertUser(input: {
@@ -94,7 +103,12 @@ export async function updateRole(id: string, role: string, actor: { id: string; 
   }
 
   const current = await target(id)
-  guardSuperadmin(current.role, actor.role)
+
+  assertCanManage(current.role, actor.role)
+
+  if (!canAssignRole(actor.role, role)) {
+    throw new UserError('No podés asignar ese rol.')
+  }
 
   await env.DB.prepare('UPDATE app_user SET role = ?, updated_at = ? WHERE id = ?')
     .bind(role, new Date().toISOString(), id)
@@ -113,7 +127,9 @@ export async function updateActive(
   }
 
   const current = await target(id)
-  guardSuperadmin(current.role, actor.role)
+
+  assertCanManage(current.role, actor.role)
+
   const at = new Date().toISOString()
 
   await env.DB.batch([

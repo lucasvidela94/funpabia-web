@@ -14,6 +14,7 @@ import {
   type ApiTokenSummary,
 } from '@/lib/api'
 import { formatDateWithYear } from '@/lib/format'
+import { mayHoldToken } from '@/lib/auth/session'
 import { listUsers, type PanelUser } from '@/lib/users'
 
 // API tokens for the public REST API (docs/spec/api-rest.md, section 5 and docs/api.md).
@@ -33,9 +34,7 @@ function ApiTokens() {
   const [revealed, setRevealed] = useState<{ name: string; value: string } | null>(null)
   const [showRevoked, setShowRevoked] = useState(false)
 
-  const owners = users.filter(
-    (user) => user.active && ['municipality', 'admin'].includes(user.role),
-  )
+  const owners = users.filter((user) => user.active && mayHoldToken(user.role))
 
   const revokedCount = tokens.filter((token) => token.revoked).length
   const visible = showRevoked ? tokens : tokens.filter((token) => !token.revoked)

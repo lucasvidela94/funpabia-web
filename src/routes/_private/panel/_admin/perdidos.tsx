@@ -3,9 +3,10 @@ import { PanelHeader } from '@/components/panel/panel-page'
 import { ReportRow } from '@/components/panel/report-row'
 import { listPanelReports } from '@/lib/lost-found'
 
-// Spec 6.6: the committee moderates what visitors report. Any panel role can; pending reports come
-// first because nothing is public until one is approved.
-export const Route = createFileRoute('/_private/panel/perdidos')({
+// Spec 6.6: the committee moderates what visitors report, because each report carries the
+// neighbour's phone number. Pending reports come first because nothing is public until one is
+// approved.
+export const Route = createFileRoute('/_private/panel/_admin/perdidos')({
   loader: () => listPanelReports(),
   component: LostAndFoundPanel,
 })

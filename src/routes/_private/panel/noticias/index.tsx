@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { Newspaper, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { NewsForm, EMPTY_POST } from '@/components/panel/news-form'
@@ -16,8 +16,14 @@ import {
   type NewsListPost,
 } from '@/lib/news'
 import { formatDate } from '@/lib/format'
+import { can } from '@/lib/auth/session'
 
 export const Route = createFileRoute('/_private/panel/noticias/')({
+  beforeLoad: ({ context }) => {
+    if (!can(context.user.role, 'news:read')) {
+      throw redirect({ to: '/panel/sin-permiso' })
+    }
+  },
   loader: () => listNewsPosts(),
   component: NewsAdmin,
 })

@@ -8,7 +8,7 @@ The route map for the public site and the admin panel. URLs are user-facing, so 
 - Filters and pagination live in the URL as search params, validated with zod in `validateSearch`. A filtered catalog can be shared as a link (spec 6.1).
 - Public detail pages use a slug (`/adopta/lobito-1234`); panel detail pages use the id (`/panel/animales/<uuid>`), because panel links are never shared outside.
 - A static segment wins over a dynamic one: `/adopta/solicitud` never collides with `/adopta/$slug`, since every animal slug ends in a number.
-- Role checks live in pathless layouts, not in each page: `_admin` wraps every panel route an editor may not open (spec 4: the editor sees no adopter data and no accounting).
+- Role checks live in pathless layouts, not in each page: `_admin` wraps every panel route an editor may not open (spec 4: the editor sees no adopter data and no accounting). The finer rules live in one table, `src/lib/auth/lib/permissions.ts`, which server functions and the menu both read.
 - A route exists only when its phase starts. The tables below list later phases so the map stays whole, but their files are not created yet.
 
 ## Public site (`_public`)
@@ -44,17 +44,18 @@ Header navigation: Adoptá, Cómo adoptar, Sé tránsito, Agenda, Quiénes somos
 
 ## Panel (`_private`, under `/panel`)
 
-`_private` requires a session (`beforeLoad`, redirects to `/login`). `_private/panel/_admin.tsx` is a pathless layout that also requires the `admin` or `superadmin` role; an editor who opens one of its URLs is sent back to `/panel`.
+`_private` requires a session (`beforeLoad`, redirects to `/login`). `_private/panel/_admin.tsx` is a pathless layout that also requires the `admin` or `superadmin` role; a role that opens one of its URLs is sent to `/panel/sin-permiso`. The same happens on the routes that check a finer permission (animales, noticias).
 
 | URL | File | What it is | Who | Phase |
 | --- | --- | --- | --- | --- |
 | `/panel` | `_private/panel/index.tsx` | Dashboard: counts by status, urgent, new requests, overdue follow-ups | all | MVP |
-| `/panel/animales` | `_private/panel/animales/index.tsx` | Animal list. Search: `estado`, `q` | all | MVP |
-| `/panel/animales/nuevo` | `_private/panel/animales/nuevo.tsx` | Quick intake from the phone | all | MVP |
-| `/panel/animales/$animalId` | `_private/panel/animales/$animalId.tsx` | Edit, photos, status history | all | MVP |
+| `/panel/sin-permiso` | `_private/panel/sin-permiso.tsx` | "No tenés permiso para ver esto", with the role that tried | all signed in | MVP |
+| `/panel/animales` | `_private/panel/animales/index.tsx` | Animal list. Search: `estado`, `q` | editor, veterinaria (lectura), admin | MVP |
+| `/panel/animales/nuevo` | `_private/panel/animales/nuevo.tsx` | Quick intake from the phone | editor, admin | MVP |
+| `/panel/animales/$animalId` | `_private/panel/animales/$animalId.tsx` | Edit, photos, status history | editor, veterinaria (lectura), admin | MVP |
 | `/panel/agenda` | `_private/panel/agenda.tsx` | Agenda events | all | MVP |
 | `/panel/ayuda` | `_private/panel/ayuda.tsx` | How-to guides by task (`src/lib/help`), filtered by role; each screen links to its guide (`#slug`) | all | MVP |
-| `/panel/noticias` | `_private/panel/noticias/index.tsx` | News posts | all | MVP (simple) |
+| `/panel/noticias` | `_private/panel/noticias/index.tsx` | News posts | editor, admin | MVP (simple) |
 | `/panel/solicitudes` | `_private/panel/_admin/solicitudes/index.tsx` | Requests: list on the phone, kanban on desktop. Search: `etapa`, `tipo` | admin | MVP |
 | `/panel/solicitudes/$applicationId` | `_private/panel/_admin/solicitudes/$applicationId.tsx` | One request, notes, WhatsApp button | admin | MVP |
 | `/panel/transitos` | `_private/panel/_admin/transitos.tsx` | Foster placements | admin | MVP (basic) |
@@ -67,11 +68,11 @@ Header navigation: Adoptá, Cómo adoptar, Sé tránsito, Agenda, Quiénes somos
 | `/panel/rifas` | `_private/panel/_admin/rifas/index.tsx` | Raffles: the ledger of who has each number | admin | F3 (pulled forward) |
 | `/panel/rifas/nueva` | `_private/panel/_admin/rifas/nueva.tsx` | New raffle (starts as a draft) | admin | F3 (pulled forward) |
 | `/panel/rifas/$raffleId` | `_private/panel/_admin/rifas/$raffleId.tsx` | Number grid, accounts per seller, status, winner, proceeds to the goal | admin | F3 (pulled forward) |
-| `/panel/usuarios` | `_private/panel/_admin/usuarios.tsx` | Panel users and roles | admin | MVP |
+| `/panel/usuarios` | `_private/panel/_admin/usuarios.tsx` | Panel users and roles. Admin hands out editor, veterinaria and municipio; only superadmin changes an admin account | admin | MVP |
 | `/panel/api` | `_private/panel/_admin/api.tsx` | API tokens for the Municipality | admin | F3 |
 | `/panel/configuracion` | `_private/panel/_admin/configuracion.tsx` | Alias, CBU, texts, social links | admin | MVP |
 | `/panel/clinica` | `_private/panel/_admin/clinica.tsx` | Clinical events and expenses | admin | F2 |
-| `/panel/perdidos` | `_private/panel/perdidos.tsx` | Lost and found moderation: approve, hide, mark reunited | all | F2 |
+| `/panel/perdidos` | `_private/panel/_admin/perdidos.tsx` | Lost and found moderation: approve, hide, mark reunited | admin | F2 |
 | `/panel/denuncias` | `_private/panel/_admin/denuncias.tsx` | Abuse reports | admin | F2 |
 | `/panel/voluntarios` | `_private/panel/_admin/voluntarios.tsx` | Volunteers and shifts | admin | F2 |
 | `/panel/socios` | `_private/panel/_admin/socios.tsx` | Sponsors and dues | admin | F3 |
@@ -79,16 +80,16 @@ Header navigation: Adoptá, Cómo adoptar, Sé tránsito, Agenda, Quiénes somos
 
 ### Sidebar
 
-The sidebar reads one list (`src/components/panel/nav.ts`) and hides the items the user's role cannot open, so the menu and the `_admin` guard never disagree. Groups, in order:
+The sidebar reads one list (`src/components/panel/nav.ts`) and hides the items the user's role cannot open, so the menu, the `_admin` guard and the permission table never disagree. Groups, in order:
 
 1. Tablero
 2. Animales: Animales
 3. Adopciones: Solicitudes, Tránsitos, Seguimientos, Personas
 4. Donaciones: Metas, Rifas
 5. Contenido: Agenda, Noticias
-6. Administración: Usuarios, API, Configuración
+6. Administración: Usuarios, API, Configuración. The group starts open.
 
-On the phone the sidebar opens as a sheet from the top bar, and "+ Animal" stays one tap away (spec 8.4).
+On the phone the sidebar opens as a sheet from the top bar, and "+ Animal" stays one tap away (spec 8.4) for the roles that can load one.
 
 ## Public API (`src/routes/api/v1/`)
 

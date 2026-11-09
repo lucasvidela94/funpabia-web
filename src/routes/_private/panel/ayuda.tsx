@@ -7,8 +7,8 @@ import { guidesForRole } from '@/lib/help'
 export const Route = createFileRoute('/_private/panel/ayuda')({ component: Help })
 
 function Help() {
-  const { isAdmin } = Route.useRouteContext()
-  const guides = guidesForRole(isAdmin)
+  const { user } = Route.useRouteContext()
+  const guides = guidesForRole(user.role)
 
   return (
     <div className="max-w-3xl">

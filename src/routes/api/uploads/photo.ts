@@ -11,7 +11,7 @@ export const Route = createFileRoute('/api/uploads/photo')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { requireUser } = await import('@/lib/auth/session')
+        const { requireAction } = await import('@/lib/auth/session')
         const { receiveUpload } = await import('@/lib/photos/server')
 
         // CSRF: only the panel's own pages may post here.
@@ -22,7 +22,7 @@ export const Route = createFileRoute('/api/uploads/photo')({
         }
 
         try {
-          await requireUser()
+          await requireAction('photo:upload')
         } catch {
           return Response.json({ error: 'Iniciá sesión de nuevo.' }, { status: 401 })
         }

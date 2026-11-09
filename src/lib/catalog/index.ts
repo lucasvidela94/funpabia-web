@@ -19,6 +19,8 @@ export { catalogSearchSchema, type CatalogSearch } from './lib/search'
 
 export { statusSchema, type AnimalStatus, type Sex, type Species } from './lib/schema'
 
+export { PANEL_STATUSES, PIPELINE_STATUSES, SIDE_STATUSES } from './lib/statuses'
+
 export type CatalogAnimal = ReturnType<typeof toCatalogAnimal>
 
 export type AnimalProfile = CatalogAnimal & {

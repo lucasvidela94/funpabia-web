@@ -1,13 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
-import { isAdminRole, userMiddleware } from '@/lib/auth/session'
+import { can, isAdminRole, userMiddleware } from '@/lib/auth/session'
 
-// Spec 6.3: counts by status, urgent animals, new requests and overdue follow-ups. Request and
-// follow-up counts only reach admins (spec 4).
+// Spec 6.3: counts by status, urgent animals, new requests and overdue follow-ups. Each block
+// only reaches the roles that can open it (spec 4 and the permission table).
 export const getDashboard = createServerFn({ method: 'GET' })
   .middleware([userMiddleware])
   .handler(async ({ context: { user } }) => {
     const queries = await import('./lib/queries')
     const admin = isAdminRole(user.role)
+    const showAnimals = can(user.role, 'animal:read')
+    const moderateReports = can(user.role, 'lost-found:moderate')
 
     const [
       byStatus,
@@ -18,10 +20,10 @@ export const getDashboard = createServerFn({ method: 'GET' })
       overdueFollowUps,
       setup,
     ] = await Promise.all([
-      queries.selectStatusCounts(),
-      queries.countUrgent(),
-      queries.countUnpublished(),
-      queries.countPendingReports(),
+      showAnimals ? queries.selectStatusCounts() : [],
+      showAnimals ? queries.countUrgent() : 0,
+      showAnimals ? queries.countUnpublished() : 0,
+      moderateReports ? queries.countPendingReports() : null,
       admin ? queries.countNewApplications() : null,
       admin ? queries.countOverdueFollowUps() : null,
       // The first steps are the committee's to take: money accounts, goals and people.

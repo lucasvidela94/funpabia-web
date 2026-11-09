@@ -22,7 +22,7 @@ The event fields are the module's (`type`, `title`, `startsAt`, `endsAt`, `venue
 
 ## Auth
 
-Token Bearer: `Authorization: Bearer fnp_...`. Tokens are created and revoked from the panel (`/panel/api`, committee only), belong to a municipality or admin user, and expire after 12 months. The value is shown once at creation; only its hash is stored.
+Token Bearer: `Authorization: Bearer fnp_...`. Tokens are created and revoked from the panel (`/panel/api`, committee only), belong to a municipality, admin or support user (one list, `mayHoldToken`), and expire after 12 months. The value is shown once at creation; only its hash is stored.
 
 ## Example
 

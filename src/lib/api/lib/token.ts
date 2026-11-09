@@ -1,14 +1,13 @@
 import { env } from 'cloudflare:workers'
 import { z } from 'zod'
+import { mayHoldToken } from '@/lib/auth/session'
 import { ApiError } from './errors'
 
 // Bearer tokens for the public API (docs/spec/api-rest.md, section 5). Only the SHA-256 hash is
-// stored; the value is shown once at creation and never logged. Roles that may hold a token:
-// municipality (the integrator) and admin (the foundation itself).
+// stored; the value is shown once at creation and never logged. The roles come from the same
+// permission table the panel uses.
 
 const TOKEN_PREFIX = 'fnp_'
-
-const TOKEN_ROLES = new Set(['municipality', 'admin', 'superadmin'])
 
 export type VerifiedToken = { id: string; userId: string; scopes: string[] }
 
@@ -80,7 +79,7 @@ export async function verifyToken(request: Request, scope: string): Promise<Veri
     throw new ApiError(401, 'unauthorized', 'Unknown or revoked token.')
   }
 
-  if (!TOKEN_ROLES.has(token.role)) {
+  if (!mayHoldToken(token.role)) {
     throw new ApiError(403, 'forbidden', 'This token no longer has access.')
   }
 

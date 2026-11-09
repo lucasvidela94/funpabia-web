@@ -26,7 +26,7 @@ import { Route as PrivatePanelIndexRouteImport } from './routes/_private/panel/i
 import { Route as PrivatePanelAdminRouteImport } from './routes/_private/panel/_admin'
 import { Route as PrivatePanelAgendaRouteImport } from './routes/_private/panel/agenda'
 import { Route as PrivatePanelAyudaRouteImport } from './routes/_private/panel/ayuda'
-import { Route as PrivatePanelPerdidosRouteImport } from './routes/_private/panel/perdidos'
+import { Route as PrivatePanelSinPermisoRouteImport } from './routes/_private/panel/sin-permiso'
 import { Route as PublicAdoptaIndexRouteImport } from './routes/_public/adopta/index'
 import { Route as PublicAdoptaSlugRouteImport } from './routes/_public/adopta/$slug'
 import { Route as PublicAdoptaSolicitudRouteImport } from './routes/_public/adopta/solicitud'
@@ -46,6 +46,7 @@ import { Route as ApiUploadsReportPhotoRouteImport } from './routes/api/uploads/
 import { Route as ApiV1AgendaEventsRouteImport } from './routes/api/v1/agenda-events'
 import { Route as PrivatePanelAdminApiRouteImport } from './routes/_private/panel/_admin/api'
 import { Route as PrivatePanelAdminConfiguracionRouteImport } from './routes/_private/panel/_admin/configuracion'
+import { Route as PrivatePanelAdminPerdidosRouteImport } from './routes/_private/panel/_admin/perdidos'
 import { Route as PrivatePanelAdminSeguimientosRouteImport } from './routes/_private/panel/_admin/seguimientos'
 import { Route as PrivatePanelAdminTransitosRouteImport } from './routes/_private/panel/_admin/transitos'
 import { Route as PrivatePanelAdminUsuariosRouteImport } from './routes/_private/panel/_admin/usuarios'
@@ -148,9 +149,9 @@ const PrivatePanelAyudaRoute = PrivatePanelAyudaRouteImport.update({
   path: '/panel/ayuda',
   getParentRoute: () => PrivateRoute,
 } as any)
-const PrivatePanelPerdidosRoute = PrivatePanelPerdidosRouteImport.update({
-  id: '/panel/perdidos',
-  path: '/panel/perdidos',
+const PrivatePanelSinPermisoRoute = PrivatePanelSinPermisoRouteImport.update({
+  id: '/panel/sin-permiso',
+  path: '/panel/sin-permiso',
   getParentRoute: () => PrivateRoute,
 } as any)
 const PublicAdoptaIndexRoute = PublicAdoptaIndexRouteImport.update({
@@ -247,6 +248,12 @@ const PrivatePanelAdminConfiguracionRoute =
   PrivatePanelAdminConfiguracionRouteImport.update({
     id: '/configuracion',
     path: '/configuracion',
+    getParentRoute: () => PrivatePanelAdminRoute,
+  } as any)
+const PrivatePanelAdminPerdidosRoute =
+  PrivatePanelAdminPerdidosRouteImport.update({
+    id: '/perdidos',
+    path: '/perdidos',
     getParentRoute: () => PrivatePanelAdminRoute,
   } as any)
 const PrivatePanelAdminSeguimientosRoute =
@@ -372,7 +379,7 @@ export interface FileRoutesByFullPath {
   '/panel': typeof PrivatePanelAdminRouteWithChildren
   '/panel/agenda': typeof PrivatePanelAgendaRoute
   '/panel/ayuda': typeof PrivatePanelAyudaRoute
-  '/panel/perdidos': typeof PrivatePanelPerdidosRoute
+  '/panel/sin-permiso': typeof PrivatePanelSinPermisoRoute
   '/adopta/$slug': typeof PublicAdoptaSlugRoute
   '/adopta/solicitud': typeof PublicAdoptaSolicitudRoute
   '/dona/$slug': typeof PublicDonaSlugRoute
@@ -393,6 +400,7 @@ export interface FileRoutesByFullPath {
   '/transito/': typeof PublicTransitoIndexRoute
   '/panel/api': typeof PrivatePanelAdminApiRoute
   '/panel/configuracion': typeof PrivatePanelAdminConfiguracionRoute
+  '/panel/perdidos': typeof PrivatePanelAdminPerdidosRoute
   '/panel/seguimientos': typeof PrivatePanelAdminSeguimientosRoute
   '/panel/transitos': typeof PrivatePanelAdminTransitosRoute
   '/panel/usuarios': typeof PrivatePanelAdminUsuariosRoute
@@ -427,7 +435,7 @@ export interface FileRoutesByTo {
   '/panel': typeof PrivatePanelIndexRoute
   '/panel/agenda': typeof PrivatePanelAgendaRoute
   '/panel/ayuda': typeof PrivatePanelAyudaRoute
-  '/panel/perdidos': typeof PrivatePanelPerdidosRoute
+  '/panel/sin-permiso': typeof PrivatePanelSinPermisoRoute
   '/adopta/$slug': typeof PublicAdoptaSlugRoute
   '/adopta/solicitud': typeof PublicAdoptaSolicitudRoute
   '/dona/$slug': typeof PublicDonaSlugRoute
@@ -447,6 +455,7 @@ export interface FileRoutesByTo {
   '/transito': typeof PublicTransitoIndexRoute
   '/panel/api': typeof PrivatePanelAdminApiRoute
   '/panel/configuracion': typeof PrivatePanelAdminConfiguracionRoute
+  '/panel/perdidos': typeof PrivatePanelAdminPerdidosRoute
   '/panel/seguimientos': typeof PrivatePanelAdminSeguimientosRoute
   '/panel/transitos': typeof PrivatePanelAdminTransitosRoute
   '/panel/usuarios': typeof PrivatePanelAdminUsuariosRoute
@@ -484,7 +493,7 @@ export interface FileRoutesById {
   '/_private/panel/_admin': typeof PrivatePanelAdminRouteWithChildren
   '/_private/panel/agenda': typeof PrivatePanelAgendaRoute
   '/_private/panel/ayuda': typeof PrivatePanelAyudaRoute
-  '/_private/panel/perdidos': typeof PrivatePanelPerdidosRoute
+  '/_private/panel/sin-permiso': typeof PrivatePanelSinPermisoRoute
   '/_public/adopta/$slug': typeof PublicAdoptaSlugRoute
   '/_public/adopta/solicitud': typeof PublicAdoptaSolicitudRoute
   '/_public/dona/$slug': typeof PublicDonaSlugRoute
@@ -505,6 +514,7 @@ export interface FileRoutesById {
   '/_public/transito/': typeof PublicTransitoIndexRoute
   '/_private/panel/_admin/api': typeof PrivatePanelAdminApiRoute
   '/_private/panel/_admin/configuracion': typeof PrivatePanelAdminConfiguracionRoute
+  '/_private/panel/_admin/perdidos': typeof PrivatePanelAdminPerdidosRoute
   '/_private/panel/_admin/seguimientos': typeof PrivatePanelAdminSeguimientosRoute
   '/_private/panel/_admin/transitos': typeof PrivatePanelAdminTransitosRoute
   '/_private/panel/_admin/usuarios': typeof PrivatePanelAdminUsuariosRoute
@@ -541,7 +551,7 @@ export interface FileRouteTypes {
     | '/panel'
     | '/panel/agenda'
     | '/panel/ayuda'
-    | '/panel/perdidos'
+    | '/panel/sin-permiso'
     | '/adopta/$slug'
     | '/adopta/solicitud'
     | '/dona/$slug'
@@ -562,6 +572,7 @@ export interface FileRouteTypes {
     | '/transito/'
     | '/panel/api'
     | '/panel/configuracion'
+    | '/panel/perdidos'
     | '/panel/seguimientos'
     | '/panel/transitos'
     | '/panel/usuarios'
@@ -596,7 +607,7 @@ export interface FileRouteTypes {
     | '/panel'
     | '/panel/agenda'
     | '/panel/ayuda'
-    | '/panel/perdidos'
+    | '/panel/sin-permiso'
     | '/adopta/$slug'
     | '/adopta/solicitud'
     | '/dona/$slug'
@@ -616,6 +627,7 @@ export interface FileRouteTypes {
     | '/transito'
     | '/panel/api'
     | '/panel/configuracion'
+    | '/panel/perdidos'
     | '/panel/seguimientos'
     | '/panel/transitos'
     | '/panel/usuarios'
@@ -652,7 +664,7 @@ export interface FileRouteTypes {
     | '/_private/panel/_admin'
     | '/_private/panel/agenda'
     | '/_private/panel/ayuda'
-    | '/_private/panel/perdidos'
+    | '/_private/panel/sin-permiso'
     | '/_public/adopta/$slug'
     | '/_public/adopta/solicitud'
     | '/_public/dona/$slug'
@@ -673,6 +685,7 @@ export interface FileRouteTypes {
     | '/_public/transito/'
     | '/_private/panel/_admin/api'
     | '/_private/panel/_admin/configuracion'
+    | '/_private/panel/_admin/perdidos'
     | '/_private/panel/_admin/seguimientos'
     | '/_private/panel/_admin/transitos'
     | '/_private/panel/_admin/usuarios'
@@ -826,11 +839,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivatePanelAyudaRouteImport
       parentRoute: typeof PrivateRoute
     }
-    '/_private/panel/perdidos': {
-      id: '/_private/panel/perdidos'
-      path: '/panel/perdidos'
-      fullPath: '/panel/perdidos'
-      preLoaderRoute: typeof PrivatePanelPerdidosRouteImport
+    '/_private/panel/sin-permiso': {
+      id: '/_private/panel/sin-permiso'
+      path: '/panel/sin-permiso'
+      fullPath: '/panel/sin-permiso'
+      preLoaderRoute: typeof PrivatePanelSinPermisoRouteImport
       parentRoute: typeof PrivateRoute
     }
     '/_public/adopta/': {
@@ -966,6 +979,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivatePanelAdminConfiguracionRouteImport
       parentRoute: typeof PrivatePanelAdminRoute
     }
+    '/_private/panel/_admin/perdidos': {
+      id: '/_private/panel/_admin/perdidos'
+      path: '/perdidos'
+      fullPath: '/panel/perdidos'
+      preLoaderRoute: typeof PrivatePanelAdminPerdidosRouteImport
+      parentRoute: typeof PrivatePanelAdminRoute
+    }
     '/_private/panel/_admin/seguimientos': {
       id: '/_private/panel/_admin/seguimientos'
       path: '/seguimientos'
@@ -1098,6 +1118,7 @@ declare module '@tanstack/react-router' {
 interface PrivatePanelAdminRouteChildren {
   PrivatePanelAdminApiRoute: typeof PrivatePanelAdminApiRoute
   PrivatePanelAdminConfiguracionRoute: typeof PrivatePanelAdminConfiguracionRoute
+  PrivatePanelAdminPerdidosRoute: typeof PrivatePanelAdminPerdidosRoute
   PrivatePanelAdminSeguimientosRoute: typeof PrivatePanelAdminSeguimientosRoute
   PrivatePanelAdminTransitosRoute: typeof PrivatePanelAdminTransitosRoute
   PrivatePanelAdminUsuariosRoute: typeof PrivatePanelAdminUsuariosRoute
@@ -1116,6 +1137,7 @@ interface PrivatePanelAdminRouteChildren {
 const PrivatePanelAdminRouteChildren: PrivatePanelAdminRouteChildren = {
   PrivatePanelAdminApiRoute: PrivatePanelAdminApiRoute,
   PrivatePanelAdminConfiguracionRoute: PrivatePanelAdminConfiguracionRoute,
+  PrivatePanelAdminPerdidosRoute: PrivatePanelAdminPerdidosRoute,
   PrivatePanelAdminSeguimientosRoute: PrivatePanelAdminSeguimientosRoute,
   PrivatePanelAdminTransitosRoute: PrivatePanelAdminTransitosRoute,
   PrivatePanelAdminUsuariosRoute: PrivatePanelAdminUsuariosRoute,
@@ -1141,7 +1163,7 @@ interface PrivateRouteChildren {
   PrivatePanelAdminRoute: typeof PrivatePanelAdminRouteWithChildren
   PrivatePanelAgendaRoute: typeof PrivatePanelAgendaRoute
   PrivatePanelAyudaRoute: typeof PrivatePanelAyudaRoute
-  PrivatePanelPerdidosRoute: typeof PrivatePanelPerdidosRoute
+  PrivatePanelSinPermisoRoute: typeof PrivatePanelSinPermisoRoute
   PrivatePanelIndexRoute: typeof PrivatePanelIndexRoute
   PrivatePanelAnimalesAnimalIdRoute: typeof PrivatePanelAnimalesAnimalIdRoute
   PrivatePanelAnimalesNuevoRoute: typeof PrivatePanelAnimalesNuevoRoute
@@ -1153,7 +1175,7 @@ const PrivateRouteChildren: PrivateRouteChildren = {
   PrivatePanelAdminRoute: PrivatePanelAdminRouteWithChildren,
   PrivatePanelAgendaRoute: PrivatePanelAgendaRoute,
   PrivatePanelAyudaRoute: PrivatePanelAyudaRoute,
-  PrivatePanelPerdidosRoute: PrivatePanelPerdidosRoute,
+  PrivatePanelSinPermisoRoute: PrivatePanelSinPermisoRoute,
   PrivatePanelIndexRoute: PrivatePanelIndexRoute,
   PrivatePanelAnimalesAnimalIdRoute: PrivatePanelAnimalesAnimalIdRoute,
   PrivatePanelAnimalesNuevoRoute: PrivatePanelAnimalesNuevoRoute,

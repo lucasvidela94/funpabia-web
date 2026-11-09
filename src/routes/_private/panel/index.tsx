@@ -2,13 +2,10 @@ import { Link, createFileRoute, type LinkProps } from '@tanstack/react-router'
 import { AlertTriangle, CalendarClock, EyeOff, Inbox, Search, type LucideIcon } from 'lucide-react'
 import { SetupChecklist } from '@/components/panel/setup-checklist'
 import { StatusBadge } from '@/components/panel/status-badge'
-import type { AnimalStatus } from '@/lib/catalog'
+import { can } from '@/lib/auth/session'
+import { PIPELINE_STATUSES, SIDE_STATUSES, type AnimalStatus } from '@/lib/catalog'
 import { getDashboard } from '@/lib/dashboard'
 import { cn } from '@/lib/utils'
-
-// The order an animal moves through (spec 6.3), then the side statuses.
-const PIPELINE: AnimalStatus[] = ['intake', 'under_treatment', 'available', 'reserved', 'adopted']
-const SIDE: AnimalStatus[] = ['fostered', 'not_adoptable', 'returned', 'deceased']
 
 export const Route = createFileRoute('/_private/panel/')({
   loader: () => getDashboard(),
@@ -18,6 +15,14 @@ export const Route = createFileRoute('/_private/panel/')({
 function DashboardPage() {
   const { user } = Route.useRouteContext()
   const data = Route.useLoaderData()
+
+  const showAnimals = can(user.role, 'animal:read')
+
+  const hasAttention =
+    showAnimals ||
+    data.newApplications !== null ||
+    data.overdueFollowUps !== null ||
+    data.pendingReports !== null
 
   const countOf = (status: AnimalStatus) =>
     data.byStatus.find((row) => row.status === status)?.total ?? 0
@@ -33,79 +38,106 @@ function DashboardPage() {
 
       {data.setup ? <SetupChecklist setup={data.setup} /> : null}
 
-      <section aria-labelledby="atencion">
-        <h2 id="atencion" className="sr-only">
-          Para atender
-        </h2>
-        <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-          <AttentionItem
-            icon={AlertTriangle}
-            count={data.urgent}
-            label={data.urgent === 1 ? 'animal urgente' : 'animales urgentes'}
-            to="/panel/animales"
-            tone="urgent"
-          />
-          {data.newApplications === null ? null : (
-            <AttentionItem
-              icon={Inbox}
-              count={data.newApplications}
-              label={data.newApplications === 1 ? 'solicitud nueva' : 'solicitudes nuevas'}
-              to="/panel/solicitudes"
-              tone="primary"
-            />
-          )}
-          {data.overdueFollowUps === null ? null : (
-            <AttentionItem
-              icon={CalendarClock}
-              count={data.overdueFollowUps}
-              label={data.overdueFollowUps === 1 ? 'seguimiento vencido' : 'seguimientos vencidos'}
-              to="/panel/seguimientos"
-              tone="lost"
-            />
-          )}
-          <AttentionItem
-            icon={Search}
-            count={data.pendingReports}
-            label={data.pendingReports === 1 ? 'reporte por revisar' : 'reportes por revisar'}
-            to="/panel/perdidos"
-            tone="primary"
-          />
-          <AttentionItem
-            icon={EyeOff}
-            count={data.unpublished}
-            label="en adopción sin publicar"
-            to="/panel/animales"
-            tone="neutral"
-          />
-        </ul>
-      </section>
-
-      <section aria-labelledby="estados">
-        <h2 id="estados" className="font-heading text-2xl font-bold">
-          Animales por estado
-        </h2>
-        <ol className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-line sm:grid-cols-5">
-          {PIPELINE.map((status) => (
-            <li key={status} className="bg-card">
-              <StatusCount status={status} total={countOf(status)} />
-            </li>
-          ))}
-        </ol>
-        <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-ink-2">
-          {SIDE.map((status) => (
-            <li key={status}>
-              <Link
+      {hasAttention ? (
+        <section aria-labelledby="atencion">
+          <h2 id="atencion" className="sr-only">
+            Para atender
+          </h2>
+          <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+            {showAnimals ? (
+              <AttentionItem
+                icon={AlertTriangle}
+                count={data.urgent}
+                label={data.urgent === 1 ? 'animal urgente' : 'animales urgentes'}
                 to="/panel/animales"
-                search={{ estado: status }}
-                className="inline-flex min-h-11 items-center gap-2 hover:text-ink"
-              >
-                <StatusBadge status={status} />
-                <span className="font-semibold tabular-nums">{countOf(status)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+                tone="urgent"
+              />
+            ) : null}
+            {data.newApplications === null ? null : (
+              <AttentionItem
+                icon={Inbox}
+                count={data.newApplications}
+                label={data.newApplications === 1 ? 'solicitud nueva' : 'solicitudes nuevas'}
+                to="/panel/solicitudes"
+                tone="primary"
+              />
+            )}
+            {data.overdueFollowUps === null ? null : (
+              <AttentionItem
+                icon={CalendarClock}
+                count={data.overdueFollowUps}
+                label={
+                  data.overdueFollowUps === 1 ? 'seguimiento vencido' : 'seguimientos vencidos'
+                }
+                to="/panel/seguimientos"
+                tone="lost"
+              />
+            )}
+            {data.pendingReports === null ? null : (
+              <AttentionItem
+                icon={Search}
+                count={data.pendingReports}
+                label={data.pendingReports === 1 ? 'reporte por revisar' : 'reportes por revisar'}
+                to="/panel/perdidos"
+                tone="primary"
+              />
+            )}
+            {showAnimals ? (
+              <AttentionItem
+                icon={EyeOff}
+                count={data.unpublished}
+                label="en adopción sin publicar"
+                to="/panel/animales"
+                tone="neutral"
+              />
+            ) : null}
+          </ul>
+        </section>
+      ) : null}
+
+      {showAnimals ? (
+        <section aria-labelledby="estados">
+          <h2 id="estados" className="font-heading text-2xl font-bold">
+            Animales por estado
+          </h2>
+          <ol className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-line sm:grid-cols-5">
+            {PIPELINE_STATUSES.map((status) => (
+              <li key={status} className="bg-card">
+                <StatusCount status={status} total={countOf(status)} />
+              </li>
+            ))}
+          </ol>
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-ink-2">
+            {SIDE_STATUSES.map((status) => (
+              <li key={status}>
+                <Link
+                  to="/panel/animales"
+                  search={{ estado: status }}
+                  className="inline-flex min-h-11 items-center gap-2 hover:text-ink"
+                >
+                  <StatusBadge status={status} />
+                  <span className="font-semibold tabular-nums">{countOf(status)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <section aria-labelledby="agenda" className="rounded-lg border bg-card p-6">
+          <h2 id="agenda" className="font-heading text-2xl font-bold">
+            Agenda
+          </h2>
+          <p className="mt-1 text-ink-2">
+            Como Municipio, cargás y editás los eventos de castración y vacunación en la agenda.
+          </p>
+          <Link
+            to="/panel/agenda"
+            className="mt-4 inline-flex h-11 items-center rounded-md bg-primary px-5 font-bold text-primary-foreground"
+          >
+            Ir a la agenda
+          </Link>
+        </section>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import type { z } from 'zod'
 import { ChoiceField, TextField } from '@/components/shared/form-fields'
@@ -7,6 +7,7 @@ import { PhotoPicker } from '@/components/shared/photo-picker'
 import { usePhotoUploads } from '@/components/shared/photo-uploads'
 import { Button } from '@/components/ui/button'
 import { MAX_PHOTOS, createAnimal, intakeSchema } from '@/lib/animals'
+import { can } from '@/lib/auth/session'
 
 // Spec 8.4: photos, then five answers with big buttons; only the name needs the keyboard. The
 // animal starts as "ingresado" and unpublished; the story and the rest come later.
@@ -44,7 +45,14 @@ function toErrors(error: z.ZodError): Errors {
   return Object.fromEntries(error.issues.map((issue) => [String(issue.path.at(0)), issue.message]))
 }
 
-export const Route = createFileRoute('/_private/panel/animales/nuevo')({ component: NewAnimal })
+export const Route = createFileRoute('/_private/panel/animales/nuevo')({
+  beforeLoad: ({ context }) => {
+    if (!can(context.user.role, 'animal:create')) {
+      throw redirect({ to: '/panel/sin-permiso' })
+    }
+  },
+  component: NewAnimal,
+})
 
 function NewAnimal() {
   const navigate = useNavigate()

@@ -1,13 +1,11 @@
 import { env } from 'cloudflare:workers'
 import { z } from 'zod'
+import { mayHoldToken } from '@/lib/auth/session'
 import { TokenError } from './errors'
 import { hashToken, newTokenValue } from './token'
 
 // Token management for the panel screen (docs/spec/api-rest.md, section 5). Tokens belong to a
-// municipality or admin user; the value leaves the server only in the creation response.
-
-// Roles that may hold a token: the integrator (municipality) and the foundation itself (admin).
-const ELIGIBLE_ROLES = new Set(['municipality', 'admin'])
+// municipality, admin or support user; the value leaves the server only in the creation response.
 
 const listSchema = z
   .object({
@@ -62,7 +60,7 @@ export async function insertToken(input: { userId: string; name: string }) {
     throw new TokenError('Esa usuaria está dada de baja.')
   }
 
-  if (!ELIGIBLE_ROLES.has(parsed.role)) {
+  if (!mayHoldToken(parsed.role)) {
     throw new TokenError('El token es para el Municipio o para la comisión.')
   }
 

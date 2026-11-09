@@ -4,7 +4,7 @@ import { PanelSidebar } from '@/components/panel/panel-sidebar'
 import { Button } from '@/components/ui/button'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { authClient } from '@/lib/auth/client'
-import { getSession, isAdminRole } from '@/lib/auth/session'
+import { can, getSession, isAdminRole } from '@/lib/auth/session'
 
 export const Route = createFileRoute('/_private')({
   beforeLoad: async () => {
@@ -21,8 +21,9 @@ export const Route = createFileRoute('/_private')({
 })
 
 function PrivateLayout() {
-  const { user, isAdmin } = Route.useRouteContext()
+  const { user } = Route.useRouteContext()
   const navigate = useNavigate()
+  const canCreateAnimal = can(user.role, 'animal:create')
 
   async function signOut() {
     await authClient.signOut()
@@ -31,7 +32,7 @@ function PrivateLayout() {
 
   return (
     <SidebarProvider>
-      <PanelSidebar user={user} isAdmin={isAdmin} onSignOut={signOut} />
+      <PanelSidebar user={user} role={user.role} onSignOut={signOut} />
       <SidebarInset>
         <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b bg-background px-3 md:px-6">
           <SidebarTrigger />
@@ -44,13 +45,15 @@ function PrivateLayout() {
               <span className="hidden sm:inline">Ayuda</span>
             </Link>
           </Button>
-          {/* Spec 8.4: adding an animal is always one tap away, from any panel page. */}
-          <Button asChild className="h-11 px-4 text-base font-bold">
-            <Link to="/panel/animales/nuevo">
-              <Plus className="size-5" aria-hidden="true" />
-              Animal
-            </Link>
-          </Button>
+          {/* Spec 8.4: adding an animal is always one tap away, for the roles that can load one. */}
+          {canCreateAnimal ? (
+            <Button asChild className="h-11 px-4 text-base font-bold">
+              <Link to="/panel/animales/nuevo">
+                <Plus className="size-5" aria-hidden="true" />
+                Animal
+              </Link>
+            </Button>
+          ) : null}
         </header>
         <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8">
           <Outlet />

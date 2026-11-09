@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { adminMiddleware } from '@/lib/auth/session'
+import { actionMiddleware } from '@/lib/auth/session'
 import { editableSettingsSchema } from './lib/editable'
 
 // Public settings the committee edits from the panel (spec 6.13). Values are JSON in the
@@ -56,7 +56,7 @@ export { editableSettingsSchema, type EditableSettings } from './lib/editable'
 
 // Configuración (admin only). Saving is the only write: the site reads the values on each visit.
 export const saveSettings = createServerFn({ method: 'POST' })
-  .middleware([adminMiddleware])
+  .middleware([actionMiddleware('settings:manage')])
   .validator(editableSettingsSchema)
   .handler(async ({ data }) => {
     const { upsertSettings } = await import('./lib/queries')

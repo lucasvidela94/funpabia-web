@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { userMiddleware } from '@/lib/auth/session'
+import { actionMiddleware } from '@/lib/auth/session'
 import { guarded } from '@/lib/guarded'
 import { AgendaError } from './lib/errors'
 import { agendaInputSchema } from './lib/schema'
@@ -39,7 +39,7 @@ export const getUpcomingEvents = createServerFn({ method: 'GET' })
 const idSchema = z.object({ id: z.string().min(1).max(64) })
 
 export const listAgendaEvents = createServerFn({ method: 'GET' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('agenda:read')])
   .handler(async () => {
     const { selectRecent } = await import('./lib/queries')
 
@@ -47,7 +47,7 @@ export const listAgendaEvents = createServerFn({ method: 'GET' })
   })
 
 export const createAgendaEvent = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('agenda:write')])
   .validator(agendaInputSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: AgendaError, event: 'agenda.write_failed' }, async () => ({
@@ -56,7 +56,7 @@ export const createAgendaEvent = createServerFn({ method: 'POST' })
   )
 
 export const editAgendaEvent = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('agenda:write')])
   .validator(z.object({ id: idSchema.shape.id, values: agendaInputSchema }))
   .handler(async ({ data }) =>
     guarded({ error: AgendaError, event: 'agenda.write_failed' }, async () =>
@@ -65,7 +65,7 @@ export const editAgendaEvent = createServerFn({ method: 'POST' })
   )
 
 export const removeAgendaEvent = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('agenda:write')])
   .validator(idSchema)
   .handler(async ({ data }) =>
     guarded({ error: AgendaError, event: 'agenda.write_failed' }, async () =>

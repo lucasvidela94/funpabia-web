@@ -1,7 +1,7 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { userMiddleware } from '@/lib/auth/session'
+import { actionMiddleware } from '@/lib/auth/session'
 import { guarded } from '@/lib/guarded'
 import { NewsError } from './lib/errors'
 import { newsInputSchema } from './lib/schema'
@@ -27,7 +27,8 @@ export const getNewsPost = createServerFn({ method: 'GET' })
     return post
   })
 
-// Panel (spec 6.7). Any panel role can manage the news; drafts are posts with no publish date.
+// Panel (spec 6.7). The editor and the committee carry the news; drafts are posts with no publish
+// date.
 
 export type NewsListPost = Awaited<ReturnType<typeof listNewsPosts>>[number]
 
@@ -37,7 +38,7 @@ export type EditablePost = Awaited<ReturnType<typeof getNewsForEdit>>
 const idSchema = z.object({ id: z.string().min(1).max(64) })
 
 export const listNewsPosts = createServerFn({ method: 'GET' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('news:read')])
   .handler(async () => {
     const { selectPosts } = await import('./lib/panel')
 
@@ -45,7 +46,7 @@ export const listNewsPosts = createServerFn({ method: 'GET' })
   })
 
 export const getNewsForEdit = createServerFn({ method: 'GET' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('news:read')])
   .validator(idSchema)
   .handler(async ({ data }) => {
     const { selectPostForEdit } = await import('./lib/panel')
@@ -59,7 +60,7 @@ export const getNewsForEdit = createServerFn({ method: 'GET' })
   })
 
 export const createNewsPost = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('news:write')])
   .validator(newsInputSchema)
   .handler(async ({ data, context: { user } }) =>
     guarded({ error: NewsError, event: 'news.write_failed' }, async () => ({
@@ -68,7 +69,7 @@ export const createNewsPost = createServerFn({ method: 'POST' })
   )
 
 export const editNewsPost = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('news:write')])
   .validator(z.object({ id: idSchema.shape.id, values: newsInputSchema }))
   .handler(async ({ data }) =>
     guarded({ error: NewsError, event: 'news.write_failed' }, async () =>
@@ -77,7 +78,7 @@ export const editNewsPost = createServerFn({ method: 'POST' })
   )
 
 export const removeNewsPost = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('news:write')])
   .validator(idSchema)
   .handler(async ({ data }) =>
     guarded({ error: NewsError, event: 'news.write_failed' }, async () =>

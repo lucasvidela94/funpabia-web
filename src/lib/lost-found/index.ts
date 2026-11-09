@@ -2,7 +2,7 @@ import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { PRIVACY_POLICY_VERSION } from '@/lib/applications'
-import { userMiddleware } from '@/lib/auth/session'
+import { actionMiddleware } from '@/lib/auth/session'
 import { guarded } from '@/lib/guarded'
 import { logger } from '@/lib/logger'
 import { ReportError } from './lib/errors'
@@ -143,10 +143,10 @@ export const markReunited = createServerFn({ method: 'POST' })
     return { outcome: 'closed' }
   })
 
-// Panel: any panel role moderates (docs/routes.md).
+// Panel: the committee moderates, because the report carries the neighbour's phone number.
 
 export const listPanelReports = createServerFn({ method: 'GET' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('lost-found:moderate')])
   .handler(async () => {
     const { selectPanelReports } = await import('./lib/panel')
 
@@ -154,7 +154,7 @@ export const listPanelReports = createServerFn({ method: 'GET' })
   })
 
 export const deleteReport = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('lost-found:delete')])
   .validator(z.object({ id: z.string().min(1).max(64) }))
   .handler(async ({ data }) =>
     guarded({ error: ReportError, event: 'report.write_failed' }, async () => {
@@ -164,7 +164,7 @@ export const deleteReport = createServerFn({ method: 'POST' })
   )
 
 export const moderateReport = createServerFn({ method: 'POST' })
-  .middleware([userMiddleware])
+  .middleware([actionMiddleware('lost-found:moderate')])
   .validator(z.object({ id: z.string().min(1).max(64), status: statusSchema }))
   .handler(async ({ data }) =>
     guarded({ error: ReportError, event: 'report.write_failed' }, async () => {

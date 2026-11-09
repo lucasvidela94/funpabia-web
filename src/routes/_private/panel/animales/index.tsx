@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { ChevronRight, EyeOff, Search } from 'lucide-react'
 import type { FormEvent } from 'react'
 import { AnimalPhoto } from '@/components/shared/animal-photo'
@@ -7,22 +7,19 @@ import { PanelHeader } from '@/components/panel/panel-page'
 import { StatusBadge, UrgentBadge } from '@/components/panel/status-badge'
 import { Input } from '@/components/ui/input'
 import { listAnimals } from '@/lib/animals'
+import { can } from '@/lib/auth/session'
 import { animalListSearchSchema } from '@/lib/animals/search'
-import { STATUS_LABEL, type AnimalStatus } from '@/lib/catalog'
+import { PANEL_STATUSES, STATUS_LABEL, type AnimalStatus } from '@/lib/catalog'
 import { cn } from '@/lib/utils'
 
 const LOCATION_LABEL = { shelter: 'Refugio', foster: 'Tránsito', vet: 'Veterinaria' }
 
-const FILTERS: AnimalStatus[] = [
-  'intake',
-  'under_treatment',
-  'available',
-  'reserved',
-  'fostered',
-  'adopted',
-]
-
 export const Route = createFileRoute('/_private/panel/animales/')({
+  beforeLoad: ({ context }) => {
+    if (!can(context.user.role, 'animal:read')) {
+      throw redirect({ to: '/panel/sin-permiso' })
+    }
+  },
   validateSearch: animalListSearchSchema,
   loaderDeps: ({ search }) => search,
   loader: ({ deps }) => listAnimals({ data: deps }),
@@ -32,7 +29,9 @@ export const Route = createFileRoute('/_private/panel/animales/')({
 function AnimalsPage() {
   const search = Route.useSearch()
   const animals = Route.useLoaderData()
+  const { user } = Route.useRouteContext()
   const navigate = useNavigate({ from: Route.fullPath })
+  const canCreate = can(user.role, 'animal:create')
 
   function onSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -73,7 +72,7 @@ function AnimalsPage() {
                 Todos
               </FilterChip>
             </li>
-            {FILTERS.map((status) => (
+            {PANEL_STATUSES.map((status) => (
               <li key={status}>
                 <FilterChip
                   active={search.estado === status && !search.archivados}
@@ -150,12 +149,14 @@ function AnimalsPage() {
           <p className="mt-1 text-ink-2">
             Con nombre, especie, sexo, edad, tamaño y una foto ya alcanza para empezar.
           </p>
-          <Link
-            to="/panel/animales/nuevo"
-            className="mt-4 inline-flex h-11 items-center rounded-md bg-primary px-5 font-bold text-primary-foreground"
-          >
-            Cargar un animal
-          </Link>
+          {canCreate ? (
+            <Link
+              to="/panel/animales/nuevo"
+              className="mt-4 inline-flex h-11 items-center rounded-md bg-primary px-5 font-bold text-primary-foreground"
+            >
+              Cargar un animal
+            </Link>
+          ) : null}
         </div>
       )}
     </div>

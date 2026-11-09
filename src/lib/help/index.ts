@@ -1,13 +1,14 @@
 import type { LinkProps } from '@tanstack/react-router'
+import { can, type Action } from '@/lib/auth/lib/permissions'
 
 // How-to guides for the panel, by task rather than by screen: titled with what someone wants to
 // do. Steps name buttons and fields exactly as the screens show them; when a label changes on a
-// screen, change it here too. `admin` guides are hidden from editors, like their menu items.
+// screen, change it here too. Each guide follows the same permission table as its screen.
 
 export type HelpGuide = {
   slug: string
   title: string
-  admin: boolean
+  permission: Action
   steps: string[]
   action: { label: string; to: LinkProps['to'] }
 }
@@ -16,7 +17,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'cargar-animal',
     title: 'Cargar un animal desde el celular',
-    admin: false,
+    permission: 'animal:create',
     steps: [
       'Tocá "+ Animal", arriba a la derecha. Está en todas las pantallas del panel.',
       'Completá nombre, especie, sexo, edad aproximada y tamaño. Lo demás se puede sumar después.',
@@ -29,7 +30,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'responder-solicitud',
     title: 'Responder una solicitud de adopción',
-    admin: true,
+    permission: 'users:manage',
     steps: [
       'En Solicitudes, abrí una que diga "Nueva". El pre-filtro ya marca si es Apta, A revisar o Excluida.',
       'Leé las respuestas y tocá "Escribir por WhatsApp": se abre con un mensaje armado, que podés cambiar antes de mandarlo.',
@@ -42,7 +43,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'seguimiento',
     title: 'Hacer el seguimiento de una adopción',
-    admin: true,
+    permission: 'users:manage',
     steps: [
       'En Seguimientos están los próximos, y los vencidos van primero.',
       'Escribile a la familia para saber cómo está el animal.',
@@ -53,7 +54,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'registrar-donacion',
     title: 'Registrar una donación que llegó por alias o en efectivo',
-    admin: true,
+    permission: 'users:manage',
     steps: [
       'En Metas, abrí la meta a la que fue la plata.',
       'En "Registrar un aporte", escribí el monto y la fecha, y elegí cómo llegó.',
@@ -66,7 +67,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'crear-meta',
     title: 'Crear una meta para juntar plata',
-    admin: true,
+    permission: 'users:manage',
     steps: [
       'En Metas, tocá "Nueva meta".',
       'Poné un título que diga para qué es, el monto objetivo y, si querés, una fecha límite.',
@@ -78,7 +79,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'rifa',
     title: 'Vender y anotar los números de una rifa',
-    admin: true,
+    permission: 'users:manage',
     steps: [
       'En Rifas, tocá "Nueva rifa" y cargá los premios, el precio, la cantidad de números y la meta.',
       'Revisá los datos y tocá "Abrir la venta". Desde ahí el precio y la cantidad no cambian.',
@@ -91,7 +92,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'perdidos',
     title: 'Revisar un reporte de perdido o encontrado',
-    admin: false,
+    permission: 'lost-found:moderate',
     steps: [
       'Los reportes nuevos llegan a Perdidos como "Por revisar". Todavía no se ven en el sitio.',
       'Revisá que sea un animal de verdad y que el texto no tenga datos de más, como una dirección exacta.',
@@ -103,7 +104,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'agenda',
     title: 'Publicar una castración o una jornada en la agenda',
-    admin: false,
+    permission: 'agenda:write',
     steps: [
       'En Agenda, tocá "Nuevo evento" y elegí el tipo.',
       'Completá el título, cuándo empieza y, si se sabe, cuándo termina.',
@@ -115,7 +116,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'noticia',
     title: 'Publicar una noticia o una campaña',
-    admin: false,
+    permission: 'news:write',
     steps: [
       'En Noticias, tocá "Nueva noticia".',
       'Escribí el título y el texto, elegí las etiquetas y, si querés, una foto de portada.',
@@ -127,10 +128,10 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'sumar-persona',
     title: 'Sumar a alguien al panel',
-    admin: true,
+    permission: 'users:manage',
     steps: [
       'En Usuarios, tocá "Sumar una persona".',
-      'Escribí su nombre y su email, y elegí el rol: Comisión ve todo, Editora carga animales, noticias y agenda.',
+      'Escribí su nombre y su email, y elegí el rol: Comisión ve todo, Editora carga animales, noticias y agenda, Veterinaria consulta las fichas y Municipio solo carga la agenda.',
       'Poné una contraseña inicial de al menos 12 caracteres y tocá "Crear la cuenta".',
       'Pasale la contraseña en persona o por un mensaje privado, nunca en un grupo.',
       'Si deja de colaborar, "Dar de baja" cierra su sesión en todos sus dispositivos.',
@@ -140,7 +141,7 @@ const GUIDES: HelpGuide[] = [
   {
     slug: 'configuracion',
     title: 'Cargar los datos para donar y de contacto',
-    admin: true,
+    permission: 'settings:manage',
     steps: [
       'En Configuración, cargá cada cuenta que recibe donaciones: banco o billetera, alias y, si querés, CBU y titular.',
       'Más abajo, el teléfono, el WhatsApp, el email y las redes que se muestran en el sitio.',
@@ -150,6 +151,6 @@ const GUIDES: HelpGuide[] = [
   },
 ]
 
-export function guidesForRole(isAdmin: boolean) {
-  return GUIDES.filter((guide) => isAdmin || !guide.admin)
+export function guidesForRole(role: string) {
+  return GUIDES.filter((guide) => can(role, guide.permission))
 }
